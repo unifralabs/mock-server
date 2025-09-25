@@ -1,7 +1,8 @@
 replicaCount: 1
 image:
   repository: ghcr.io/unifralabs/mock-server
-  tag: "latest"
+  # tag is intentionally left blank to default to .Chart.AppVersion
+  tag: ""
   pullPolicy: Always
 
 service:

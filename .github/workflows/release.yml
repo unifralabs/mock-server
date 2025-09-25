@@ -73,13 +73,15 @@ jobs:
         with:
           version: v3.10.0 # Specify a stable helm version
 
-      - name: Install yq for YAML processing
-        uses: mikefarah/yq@v4.30.8
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
 
       - name: Update Chart and Package
         run: |
-          # Use the commit SHA from the previous job as the image tag and appVersion.
-          IMAGE_TAG=${{ needs.build-and-push-image.outputs.image-tag }}
+          # Use 'latest' for dev branch, otherwise use the git tag (commit sha) for appVersion.
+          IMAGE_TAG=${{ github.ref == 'refs/heads/dev' && 'latest' || needs.build-and-push-image.outputs.image-tag }}
           echo "Using image tag: ${IMAGE_TAG}"
 
           # Update the appVersion in Chart.yaml to point to the commit SHA
