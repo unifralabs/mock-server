@@ -33,7 +33,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            # Create 'dev' tag for pushes to the dev branch
+            # Add 'latest' tag for pushes to the dev branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/dev' }}
             type=ref,event=branch
             # Create version tags (e.g., v1.2.0 -> 1.2.0, 1.2) for git tags
             # Also create a tag based on the git commit SHA
