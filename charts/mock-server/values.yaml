@@ -1,6 +1,6 @@
 replicaCount: 1
 image:
-  repository: shuunifra/mydogemask-server-mock
+  repository: ghcr.io/unifralabs/mock-server
   tag: "latest"
   pullPolicy: Always
 
