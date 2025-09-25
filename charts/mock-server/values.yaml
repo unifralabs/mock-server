@@ -1,0 +1,49 @@
+replicaCount: 1
+image:
+  repository: your-registry/your-repo-name # <-- 替换成你的镜像仓库
+  tag: 0.1.0 # <-- 替换成你的镜像标签
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 3000
+resources: {}
+
+# Ingress configuration
+ingress:
+  enabled: true
+  # For K8s versions >= 1.18, use ingressClassName.
+  # For K8s versions < 1.18, use annotations "kubernetes.io/ingress.class: nginx"
+  # className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS, PUT, DELETE"
+  hosts:
+    - host: "mock-server.perf.unifra.xyz"
+      paths:
+        - path: "/"
+          pathType: "Prefix"
+  tls:
+    - secretName: "mock-server-tls"
+      hosts:
+        - "mock-server.perf.unifra.xyz"
+
+# ingress:
+#   enabled: true
+#   className: "nginx"
+#   annotations:
+#     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+#     nginx.ingress.kubernetes.io/enable-cors: "true"
+#     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+#     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+#   hosts:
+#     - host: "blockbook.perf.unifra.xyz"
+#       paths:
+#         - path: "/"
+#           pathType: "Prefix"
+#   tls:
+#     - secretName: "blockbook-tls"
+#       hosts:
+#         - "blockbook.perf.unifra.xyz"

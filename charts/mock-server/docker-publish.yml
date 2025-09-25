@@ -1,0 +1,41 @@
+name: Docker Publish
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "main" ] # 只在 main 分支被推送时触发
+    # 也可以在这里添加 tags 触发
+    # tags:
+    #   - 'v*.*.*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 检出你的代码
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. 登录到 Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3. 从 git ref 中提取元数据 (标签和版本号)
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: shuunifra/mydogemask-server-mock
+
+      # 4. 构建并推送 Docker 镜像
+      # 这个 action 会使用项目根目录的 Dockerfile
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
