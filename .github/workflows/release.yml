@@ -14,7 +14,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      image-tag: ${{ steps.meta.outputs.version }}
+      image-tag: ${{ steps.get_sha.outputs.sha_short }}
 
     steps:
       - name: Checkout repository
@@ -33,9 +33,11 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            # Create 'latest' tag for pushes to the main branch
-            type=raw,value=latest,enable={{is_default_branch}}
+            # Create 'dev' tag for pushes to the dev branch
+            type=ref,event=branch
             # Create version tags (e.g., v1.2.0 -> 1.2.0, 1.2) for git tags
+            # Also create a tag based on the git commit SHA
+            type=sha,format=short
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
@@ -46,6 +48,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Get short SHA
+        id: get_sha
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
 
   publish-chart:
     runs-on: ubuntu-latest
@@ -70,11 +77,11 @@ jobs:
 
       - name: Update Chart and Package
         run: |
-          # Determine the image tag to use. 'latest' for main branch, otherwise the git tag version.
-          IMAGE_TAG=${{ github.ref == 'refs/heads/main' && 'latest' || needs.build-and-push-image.outputs.image-tag }}
+          # Use the commit SHA from the previous job as the image tag and appVersion.
+          IMAGE_TAG=${{ needs.build-and-push-image.outputs.image-tag }}
           echo "Using image tag: ${IMAGE_TAG}"
 
-          # Update the appVersion in Chart.yaml to point to the correct image tag
+          # Update the appVersion in Chart.yaml to point to the commit SHA
           yq -i ".appVersion = \"${IMAGE_TAG}\"" ./charts/mock-server/Chart.yaml
 
       - name: Run chart-releaser
