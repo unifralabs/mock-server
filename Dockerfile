@@ -1,5 +1,5 @@
 # 使用一个轻量级的 Node.js 官方镜像作为基础
-FROM node:18-alpine
+FROM public.ecr.aws/docker/library/node:18-alpine
 
 # 在容器内创建一个目录来存放应用代码
 WORKDIR /usr/src/app
