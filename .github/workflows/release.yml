@@ -30,15 +30,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: shuunifra/mydogemask-server-mock
+          images: shuunifra/mydogemask-server-mock # Your image name
           tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
+            # Create 'latest' tag for pushes to the main branch
+            type=raw,value=latest,enable={{is_default_branch}}
+            # Create version tags (e.g., v1.2.0 -> 1.2.0, 1.2) for git tags
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -51,8 +49,8 @@ jobs:
   publish-chart:
     runs-on: ubuntu-latest
     needs: [build-and-push-image]
-    if: startsWith(github.ref, 'refs/tags/v')
     permissions:
+      # This is required for helm/chart-releaser-action to create releases and push to gh-pages
       contents: write # Required to push to gh-pages branch
 
     steps:
@@ -60,43 +58,28 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
-
+      
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
-          version: 'v3.10.0' # Specify a stable helm version
+          version: v3.10.0 # Specify a stable helm version
+
+      - name: Install yq for YAML processing
+        uses: mikefarah/yq@v4.30.8
 
       - name: Update Chart and Package
         run: |
-          # Extract version from git tag (e.g., v1.2.3 -> 1.2.3)
-          CHART_VERSION=$(echo ${{ github.ref_name }} | sed 's/v//')
-          IMAGE_TAG=${{ needs.build-and-push-image.outputs.image-tag }}
+          # Determine the image tag to use. 'latest' for main branch, otherwise the git tag version.
+          IMAGE_TAG=${{ github.ref == 'refs/heads/main' && 'latest' || needs.build-and-push-image.outputs.image-tag }}
+          echo "Using image tag: ${IMAGE_TAG}"
 
-          echo "Updating Chart.yaml to version ${CHART_VERSION} and appVersion ${IMAGE_TAG}"
-          helm package \
-            ./charts/mock-server \
-            --version ${CHART_VERSION} \
-            --app-version ${IMAGE_TAG} \
-            --destination ./charts/packages
+          # Update the appVersion in Chart.yaml to point to the correct image tag
+          yq -i ".appVersion = \"${IMAGE_TAG}\"" ./charts/mock-server/Chart.yaml
 
-      - name: Publish Helm chart to GitHub Pages
-        uses: s0/git-publish-subdir-action@develop
+      - name: Run chart-releaser
+        # This action packages the chart, creates a GitHub Release, and uploads the chart.
+        # It only runs for version tags, which is the desired behavior for formal releases.
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: helm/chart-releaser-action@v1.6.0
         env:
-          REPO: self
-          BRANCH: gh-pages
-          FOLDER: ./charts/packages
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "chore: Publish helm chart for ${{ github.ref_name }}"
-
-      - name: Update Helm repo index
-        run: |
-          git checkout gh-pages
-          helm repo index . --url https://unifralabs.github.io/mock-server
-          git add index.yaml
-          git commit -m "chore: Update helm repo index for ${{ github.ref_name }}"
-          git push
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
