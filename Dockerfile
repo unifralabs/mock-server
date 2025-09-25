@@ -10,7 +10,7 @@ COPY package*.json ./
 
 # 安装项目依赖
 # 使用 npm ci 可以确保安装与 package-lock.json 完全一致的依赖，构建更可靠
-RUN npm ci --only=production
+RUN npm ci
 
 # 拷贝应用源代码到容器的工作目录
 COPY . .

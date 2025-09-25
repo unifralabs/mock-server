@@ -3,21 +3,32 @@ kind: Deployment
 metadata:
   name: {{ include "mock-server.fullname" . }}
   labels:
-    app: {{ include "mock-server.name" . }}
+    {{- include "mock-server.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "mock-server.name" . }}
+      {{- include "mock-server.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "mock-server.name" . }}
+        {{- include "mock-server.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: mock-server
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 3000
-          resources: {{- toYaml .Values.resources | nindent 12 }}
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
