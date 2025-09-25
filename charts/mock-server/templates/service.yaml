@@ -3,13 +3,13 @@ kind: Service
 metadata:
   name: {{ include "mock-server.fullname" . }}
   labels:
-    app: {{ include "mock-server.name" . }}
+    {{- include "mock-server.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: 3000
+      targetPort: http
       protocol: TCP
       name: http
   selector:
-    app: {{ include "mock-server.name" . }}
+    {{- include "mock-server.selectorLabels" . | nindent 4 }}
