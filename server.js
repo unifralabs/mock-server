@@ -124,7 +124,7 @@ app.post('/tx/prepare/dune', (req, res) => {
 // 2. JSON-RPC passthrough mock
 app.post('/wallet/rpc', async (req, res) => {
   const { method, params, id, jsonrpc } = req.body;
-  const rpcUrl = 'https://gIiXOF7h:WxkMni1FAZc77cvZ@dogecoin.perf.unifra.xyz';
+  const rpcUrl = 'https://rpc:rpcp@dogecoin-testnet.unifra.xyz';
 
   console.log(`[mock] rpc passthrough for method: ${method}`);
   if (method == "sendrawtransaction") {
@@ -151,7 +151,7 @@ app.post('/wallet/rpc', async (req, res) => {
 
     const status = error.response ? error.response.status : 500;
     const data = error.response ? error.response.data : { error: `Proxy failed: ${error.message}` };
-    console.error("   /wallet/rpc=>", response.data);
+    console.error("   /wallet/rpc=>", data);
     res.status(status).json(data);
   }
 });

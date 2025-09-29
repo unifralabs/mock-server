@@ -553,7 +553,7 @@ export default function Home() {
             <div className={styles.item}>收款地址 1:</div>
             <input
               type='text'
-              style={{ width: '265px' }}
+              style={{ width: '365px' }}
               value={recipient1Address}
               onChange={(e) => setRecipient1Address(e.target.value)}
             />
@@ -567,21 +567,21 @@ export default function Home() {
             <div className={styles.item}>收款地址 2 (可选):</div>
             <input
               type='text'
-              style={{ width: '265px' }}
+              style={{ width: '365px' }}
               value={recipient2Address}
               onChange={(e) => setRecipient2Address(e.target.value)}
             />
             <div className={styles.item}>金额 2 (DOGE):</div>
             <input
               type='text'
-              style={{ width: '100px' }}
+              style={{ width: '200px' }}
               value={recipient2Amount}
               onChange={(e) => setRecipient2Amount(e.target.value)}
             />
             <div className={styles.item}>OP_RETURN 文本 (可选):</div>
             <input
               type='text'
-              style={{ width: '300px' }}
+              style={{ width: '500px' }}
               value={opReturnText}
               onChange={(e) => setOpReturnText(e.target.value)}
             />
@@ -591,7 +591,7 @@ export default function Home() {
               </button>
             </div>
             --------------------------------------------------------------------
-            <div className={styles.center}>
+            {/* <div className={styles.center}>
               Inscription location (Doginal/DRC-20) (txid:vout:offset)
             </div>
             <input
@@ -613,9 +613,9 @@ export default function Home() {
             />
             <div className={styles.center}>
               <button onClick={onSendInscription}>Send Inscription</button>
-            </div>
+            </div> */}
             --------------------------------------------------------------------
-            <div className={styles.center}>DRC-20 Ticker</div>
+            {/* <div className={styles.center}>DRC-20 Ticker</div>
             <input
               type='text'
               style={{ width: '35px' }}
@@ -668,9 +668,9 @@ export default function Home() {
                   {inscription.location} {inscription.ticker}{' '}
                   {inscription.amount}
                 </div>
-              ))}
+              ))} */}
             --------------------------------------------------------------------
-            <div className={styles.center}>Dunes Ticker</div>
+            {/* <div className={styles.center}>Dunes Ticker</div>
             <input
               type='text'
               style={{ width: '130px' }}
@@ -709,9 +709,9 @@ export default function Home() {
                   Send Dunes
                 </button>
               </div>
-            )}
+            )} */}
             --------------------------------------------------------------------
-            <div className={styles.item}>Send PSBT</div>
+            {/* <div className={styles.item}>Send PSBT</div>
             <div className={styles.item}>Raw TX</div>
             <input
               type='text'
@@ -751,9 +751,9 @@ export default function Home() {
             />
             <div className={styles.center}>
               <button onClick={() => onSignMessage()}>Sign Message</button>
-            </div>
+            </div> */}
             --------------------------------------------------------------------
-            <div className={styles.item}>Decrypt Message</div>
+            {/* <div className={styles.item}>Decrypt Message</div>
             <input
               type='text'
               className={styles.item}
@@ -767,7 +767,7 @@ export default function Home() {
               <button onClick={() => onDecryptMessage()}>
                 Decrypt Message
               </button>
-            </div>
+            </div> */}
           </div>
         )}
       </main>
