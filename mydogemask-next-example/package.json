@@ -1,0 +1,26 @@
+{
+  "name": "mydogemask-next-example",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@types/node": "22.10.1",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "bitcoinjs-lib": "^6.1.7",
+    "bs58": "^6.0.0",
+    "dogecoinjs-lib": "^0.0.1",
+    "eslint": "9.16.0",
+    "eslint-config-next": "15.0.3",
+    "next": "15.0.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "satoshi-bitcoin": "1.0.5",
+    "typescript": "5.7.2"
+  }
+}
