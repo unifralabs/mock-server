@@ -15,13 +15,14 @@ ingress:
   enabled: true
   # For K8s versions >= 1.18, use ingressClassName.
   # For K8s versions < 1.18, use annotations "kubernetes.io/ingress.class: nginx"
-  # className: "nginx"
+  className: "nginx"
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+    # kubernetes.io/ingress.class: "nginx" # This is deprecated
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS, PUT, DELETE"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization"
   hosts:
     - host: "mock-server.perf.unifra.xyz"
       paths:
