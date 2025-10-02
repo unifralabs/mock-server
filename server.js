@@ -30,6 +30,8 @@ const dogecoin = {
   wif: 0xf1,
 };
 
+const blockbookBase="https://blockbook.qiaoxiaorui.org/api/v2";
+
 // Helper: random txid string
 const randomTxId = () => crypto.randomBytes(32).toString('hex');
 // 1. Transaction building endpoints
@@ -45,7 +47,7 @@ app.post('/v3/tx/prepare', async (req, res) => {
   try {
     // 1. Fetch UTXOs for the sender
     const addressResponse = await axios.get(
-      `https://blockbook.perf.unifra.xyz/api/v2/utxo/${sender}`
+      `${blockbookBase}/utxo/${sender}`
     );
     const utxos = addressResponse.data || [];
 
@@ -122,7 +124,7 @@ app.post('/tx/prepare/dune', (req, res) => {
 // 2. JSON-RPC passthrough mock
 app.post('/wallet/rpc', async (req, res) => {
   const { method, params, id, jsonrpc } = req.body;
-  const rpcUrl = 'https://gIiXOF7h:WxkMni1FAZc77cvZ@dogecoin.perf.unifra.xyz';
+  const rpcUrl = 'https://rpc:rpcp@dogecoin-testnet.qiaoxiaorui.org';
 
   console.log(`[mock] rpc passthrough for method: ${method}`);
   if (method == "sendrawtransaction") {
@@ -149,7 +151,7 @@ app.post('/wallet/rpc', async (req, res) => {
 
     const status = error.response ? error.response.status : 500;
     const data = error.response ? error.response.data : { error: `Proxy failed: ${error.message}` };
-    console.error("   /wallet/rpc=>", response.data);
+    console.error("   /wallet/rpc=>", data);
     res.status(status).json(data);
   }
 });
@@ -165,7 +167,7 @@ app.get('/wallet/info', async (req, res) => {
 
   if (route?.startsWith('/address')) {
     try {
-      const blockbookUrl = `https://blockbook.perf.unifra.xyz/api/v2${route}`;
+      const blockbookUrl = `${blockbookBase}/${route}`;
       console.log(`[mock] proxying to ${blockbookUrl}`);
       const response = await axios.get(blockbookUrl);
       return res.json(response.data);
@@ -193,7 +195,7 @@ app.get('/wallet/info', async (req, res) => {
       }
 
       // If not in store, fetch from blockbook
-      const blockbookUrl = `https://blockbook.perf.unifra.xyz/api/v2/tx/${id}`;
+      const blockbookUrl = `${blockbookBase}/tx/${id}`;
       console.log(`[mock] proxying to ${blockbookUrl}`);
       const response = await axios.get(blockbookUrl);
       return res.json(response.data);
@@ -239,7 +241,7 @@ app.get('/utxos/:address', async (req, res) => {
   const { address } = req.params;
   try {
     const response = await axios.get(
-      `https://blockbook.perf.unifra.xyz/api/v2/address/${address}`
+      `${blockbookBase}/address/${address}`
     );
     const data = response.data;
     const utxos = (data.utxos || []).map((utxo) => ({

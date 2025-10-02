@@ -3,7 +3,7 @@ name: Release CI
 on:
   push:
     branches:
-      - 'main'
+      - 'dev'
     tags:
       - 'v*.*.*'
 
@@ -14,27 +14,31 @@ jobs:
       contents: read
       packages: write
     outputs:
-      image-tag: ${{ steps.meta.outputs.version }}
+      image-tag: ${{ steps.get_sha.outputs.sha_short }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: shuunifra/mydogemask-server-mock # Your image name
+          images: ghcr.io/${{ github.repository }}
           tags: |
-            # Create 'latest' tag for pushes to the main branch
-            type=raw,value=latest,enable={{is_default_branch}}
+            # Add 'latest' tag for pushes to the dev branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/dev' }}
+            type=ref,event=branch
             # Create version tags (e.g., v1.2.0 -> 1.2.0, 1.2) for git tags
+            # Also create a tag based on the git commit SHA
+            type=sha,format=short
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
@@ -45,6 +49,11 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Get short SHA
+        id: get_sha
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
 
   publish-chart:
     runs-on: ubuntu-latest
@@ -64,16 +73,18 @@ jobs:
         with:
           version: v3.10.0 # Specify a stable helm version
 
-      - name: Install yq for YAML processing
-        uses: mikefarah/yq@v4.30.8
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.30.8/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
 
       - name: Update Chart and Package
         run: |
-          # Determine the image tag to use. 'latest' for main branch, otherwise the git tag version.
-          IMAGE_TAG=${{ github.ref == 'refs/heads/main' && 'latest' || needs.build-and-push-image.outputs.image-tag }}
+          # Use 'latest' for dev branch, otherwise use the git tag (commit sha) for appVersion.
+          IMAGE_TAG=${{ github.ref == 'refs/heads/dev' && 'latest' || needs.build-and-push-image.outputs.image-tag }}
           echo "Using image tag: ${IMAGE_TAG}"
 
-          # Update the appVersion in Chart.yaml to point to the correct image tag
+          # Update the appVersion in Chart.yaml to point to the commit SHA
           yq -i ".appVersion = \"${IMAGE_TAG}\"" ./charts/mock-server/Chart.yaml
 
       - name: Run chart-releaser
