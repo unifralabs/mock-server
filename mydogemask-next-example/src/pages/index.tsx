@@ -37,7 +37,7 @@ export default function Home() {
   const intervalRef = useRef<any>();
 
   // 多输出和 OP_RETURN 配置
-  const [recipient1Address, setRecipient1Address] = useState("2N7ZSoAA7zMnCFovU5qXXcyqCLnEHTrnQY8");
+  const [recipient1Address, setRecipient1Address] = useState("2Mu6Pi8NATjSRCW6DTcrCRXhZQiVSL4z7ak");
   const [recipient1Amount, setRecipient1Amount] = useState('2');
   const [recipient2Address, setRecipient2Address] = useState('nq5qTGSppHq2uAawXqQcqCtr5sdf9pyuHX');
   const [recipient2Amount, setRecipient2Amount] = useState('0.1');
@@ -194,10 +194,10 @@ export default function Home() {
       // --- Advanced Mode: Building a PSBT with multiple outputs and change ---
 
       // Step 1: Define constants and helper functions
-      const blockbook_base = 'https://blockbook.unifra.xyz/api/v2';
+      const blockbook_base = 'https://blockbook.qiaoxiaorui.org/api/v2';
       const DOGE_TO_KOINU = 100_000_000;
       const DUST_THRESHOLD = 1_000_000; // 0.01 DOGE, as a safe dust limit for outputs
-      const TX_FEE_PER_BYTE = 400000; // A reasonable fee rate in koinu/byte
+      const TX_FEE_PER_BYTE = 5000; // A reasonable fee rate in koinu/byte
 
       const fetchUtxos = async (addr: string) => {
         const res = await fetch(`${blockbook_base}/utxo/${addr}`);

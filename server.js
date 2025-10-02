@@ -30,7 +30,7 @@ const dogecoin = {
   wif: 0xf1,
 };
 
-const blockbookBase="https://blockbook.unifra.xyz/api/v2";
+const blockbookBase="https://blockbook.qiaoxiaorui.org/api/v2";
 
 // Helper: random txid string
 const randomTxId = () => crypto.randomBytes(32).toString('hex');
@@ -124,7 +124,7 @@ app.post('/tx/prepare/dune', (req, res) => {
 // 2. JSON-RPC passthrough mock
 app.post('/wallet/rpc', async (req, res) => {
   const { method, params, id, jsonrpc } = req.body;
-  const rpcUrl = 'https://rpc:rpcp@dogecoin-testnet.unifra.xyz';
+  const rpcUrl = 'https://rpc:rpcp@dogecoin-testnet.qiaoxiaorui.org';
 
   console.log(`[mock] rpc passthrough for method: ${method}`);
   if (method == "sendrawtransaction") {
